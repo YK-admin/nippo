@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>nippo</title>
+    <script>
+        window.onload = () => {
+            var request = new XMLHttpRequest();
+			var api = "https://mynavi.cloudmine.jp/projects/2023_system_new_employee/issues/new"
+
+			request.open("GET", api, true);
+			request.responseType = "json";
+
+			request.onload = function(){
+				var objData = request.response;
+                console.log(objData)
+			}
+        }
+
+        const createMarkdown = () =>{
+            console.log("createMarkdown")
+            var scheduleTable = document.getElementById("schedule")
+            let schedules = document.getElementsByClassName("schedule_data")
+            var text = "\n# 本日学んだこと  \n## 研修内容  \n#### タイムスケジュール  \n  \n|時間|内容|\n|-------|----------|  ";
+            for(var i=0; i < schedules.length; i++){
+                const start = schedules[i].getElementsByClassName("start")[0]
+                const end = schedules[i].getElementsByClassName("end")[0]
+                const content = schedules[i].getElementsByClassName("content")[0]
+                if(schedules[i]){
+                    text += `\n|${start.value}～${end.value}|${content.value}|  `;
+                }
+                if(i == schedules.length-1 && end.value!=""){
+                    console.log(schedules.length)
+                    console.log(end.value)
+                    addSchedule()
+                }
+            }
+            var learning = document.getElementById("learning").value
+            text += `\n\n## 学べたこと  \n${learning}`
+            var output = document.getElementById("output")
+            output.value = text
+        }
+
+        const addSchedule = () => {
+            var scheduleTable = document.getElementById("schedule")
+            var rows = scheduleTable.rows
+            var lastRow = rows[rows.length-1]
+            var newRow = scheduleTable.tBodies[0].insertRow(-1)
+            newRow.className = "schedule_data"
+            newRow.innerHTML = `<td><input type="time" class="start" onchange="createMarkdown()" value="${lastRow.getElementsByClassName("end")[0].value}"></td><td><input type="time" class="end" onchange="createMarkdown()"></td><td><input type="text" class="content" onchange="createMarkdown()"></td>`
+        }
+
+    </script>
+</head>
+
+<body>
+    <h1>Nippo</h1>
+    <h2>Schedule</h2>
+    <table id="schedule">
+        <tr>
+            <th>開始</th><th>終了</th><th>内容</th>
+        </tr>
+        <tr class="schedule_data">
+            <td><input type="time" class="start" onchange="createMarkdown()"></td><td><input type="time" class="end" onchange="createMarkdown()"></td><td><input type="text" class="content" onchange="createMarkdown()"></td>
+        </tr>
+    </table>
+    <button onclick="addSchedule()">＋追加</button>
+    <h2>Learning</h2>
+    <textarea name="learning" id="learning" cols="50" rows="10" onchange="createMarkdown()"></textarea>
+    <h2>Output</h2>
+    <textarea name="output" id="output" cols="50" rows="30"></textarea>
+</body>
+</html>
